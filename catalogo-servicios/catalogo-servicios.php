@@ -2,10 +2,10 @@
 /*
 Plugin Name: Catálogo de Servicios
 Description: Plugin para gestionar un catálogo de servicios con imágenes
-Version: 1.0
-Author: Tu Nombre
+Version: 1.5
+Author: Mauricio Reyes
 */
-
+define('CATALOGO_SERVICIOS_VERSION', '1.5'); // Cambia la versión según sea necesario
 // Crear tabla al activar el plugin
 register_activation_hook(__FILE__, 'crear_tabla_servicios');
 
@@ -18,7 +18,7 @@ function crear_tabla_servicios() {
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         titulo varchar(255) NOT NULL,
         categoria varchar(100) NOT NULL,
-        subcategoria varchar(100) NOT NULL,
+        subcategoria varchar(100) DEFAULT NULL,
         imagen varchar(255) NOT NULL,
         fecha datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
         PRIMARY KEY  (id)
@@ -27,24 +27,8 @@ function crear_tabla_servicios() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 
-    // Asegurarse de que las columnas existen y tienen el tipo correcto
-    $columnas = [
-        'titulo' => "ALTER TABLE $tabla MODIFY COLUMN titulo varchar(255) NOT NULL",
-        'categoria' => "ALTER TABLE $tabla MODIFY COLUMN categoria varchar(100) NOT NULL",
-        'subcategoria' => "ALTER TABLE $tabla MODIFY COLUMN subcategoria varchar(100) NOT NULL",
-        'imagen' => "ALTER TABLE $tabla MODIFY COLUMN imagen varchar(255) NOT NULL",
-        'fecha' => "ALTER TABLE $tabla MODIFY COLUMN fecha datetime DEFAULT CURRENT_TIMESTAMP NOT NULL"
-    ];
+    update_option('catalogo_servicios_version', CATALOGO_SERVICIOS_VERSION);
 
-    foreach ($columnas as $columna => $alter_sql) {
-        $existe_columna = $wpdb->get_results($wpdb->prepare(
-            "SHOW COLUMNS FROM $tabla LIKE %s",
-            $columna
-        ));
-        if ($existe_columna) {
-            $wpdb->query($alter_sql);
-        }
-    }
 }
 
 // Añadir menú de administración
@@ -62,6 +46,41 @@ function menu_servicios() {
     );
 }
 
+add_action('admin_init', 'catalogo_servicios_actualizar');
+
+function catalogo_servicios_actualizar() {
+    global $wpdb;
+    $tabla = $wpdb->prefix . 'servicios';
+
+    // Obtener la versión actual almacenada
+    $version_actual = get_option('catalogo_servicios_version');
+
+    // Si la versión no coincide, realizar actualizaciones
+    if ($version_actual !== CATALOGO_SERVICIOS_VERSION) {
+        // Ejemplo: Agregar un nuevo campo "descripcion" si no existe
+         // Asegurarse de que las columnas existen y tienen el tipo correcto
+        $columnas = [
+            'titulo' => "ALTER TABLE $tabla MODIFY COLUMN titulo varchar(255) NOT NULL",
+            'categoria' => "ALTER TABLE $tabla MODIFY COLUMN categoria varchar(100) NOT NULL",
+            'subcategoria' => "ALTER TABLE $tabla MODIFY COLUMN subcategoria varchar(100) DEFAULT NULL",
+            'imagen' => "ALTER TABLE $tabla MODIFY COLUMN imagen varchar(255) NOT NULL",
+            'fecha' => "ALTER TABLE $tabla MODIFY COLUMN fecha datetime DEFAULT CURRENT_TIMESTAMP NOT NULL"
+        ];
+
+        foreach ($columnas as $columna => $alter_sql) {
+            $existe_columna = $wpdb->get_results($wpdb->prepare(
+                "SHOW COLUMNS FROM $tabla LIKE %s",
+                $columna
+            ));
+            if ($existe_columna) {
+                $wpdb->query($alter_sql);
+            }
+        }
+
+        // Actualizar la versión en la base de datos
+        update_option('catalogo_servicios_version', CATALOGO_SERVICIOS_VERSION);
+    }
+}
 // Interfaz de administración
 function admin_servicios() {
     global $wpdb;
@@ -142,7 +161,7 @@ function admin_servicios() {
                 <tr>
                     <th><label>Subcategoría</label></th>
                     <td>
-                        <select name="subcategoria" id="subcategoria" class="regular-text" required>
+                        <select name="subcategoria" id="subcategoria" class="regular-text">
                             <option value="">Seleccionar Subcategoría</option>
                         </select>
                     </td>
@@ -356,7 +375,7 @@ function mostrar_servicios_shortcode($atts) {
         </div>
 
         <!-- Paginador -->
-        <div class="pagination">
+        <div class="pagination" style="text-align: center; display: flex; justify-content: center;">
             <?php if ($pagina_actual > 1): ?>
                 <a href="?pagina=<?= $pagina_actual - 1 ?>&categoria=<?= urlencode($categoria_filtro) ?>" class="button">Anterior</a>
             <?php endif; ?>
@@ -376,23 +395,32 @@ function mostrar_servicios_shortcode($atts) {
             const buttons = document.querySelectorAll('.compartir-btn');
 
             buttons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const imageUrl = this.getAttribute('data-image');
-                    const title = this.getAttribute('data-title');
-                    const shareText = `Mira este servicio: ${title}`;
+            button.addEventListener('click', async function () {
+                const imageUrl = this.getAttribute('data-image');
+                const title = this.getAttribute('data-title');
+                const shareText = `Mira este servicio: ${title}`;
 
-                    if (navigator.share) {
-                        navigator.share({
-                            title: 'Compartir Servicio',
-                            text: shareText,
-                            url: imageUrl,
-                        })
-                        .then(() => console.log('Compartido con éxito'))
-                        .catch((error) => console.error('Error al compartir', error));
-                    } else {
-                        alert('La función de compartir no está disponible en este navegador.');
-                    }
-                });
+                try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const file = new File([blob], 'imagen.jpg', { type: blob.type });
+
+                if (navigator.share) {
+                    navigator.share({
+                    title: 'Compartir Servicio',
+                    text: shareText,
+                    files: [file],
+                    })
+                    .then(() => console.log('Compartido con éxito'))
+                    .catch((error) => console.error('Error al compartir', error));
+                } else {
+                    alert('La función de compartir no está disponible en este navegador.');
+                }
+                } catch (error) {
+                console.error('Error al obtener la imagen', error);
+                alert('No se pudo compartir la imagen.');
+                }
+            });
             });
         });
     </script>
@@ -406,15 +434,18 @@ function mostrar_servicios_shortcode($atts) {
             width: 200px;
         }
         .cards-container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Grid de 4 columnas ajustable */
             gap: 20px;
+            justify-content: space-around; /* Espaciado alrededor */
+            align-items: center;
         }
         .card {
             border: 1px solid #ddd;
             border-radius: 5px;
-            padding: 0 0 1em 0;
-            width: 300px;
+            padding: 0 0 10px 0;
+            width: 100%; /* Ajusta al tamaño del grid */
+            height: 100%;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -424,10 +455,10 @@ function mostrar_servicios_shortcode($atts) {
             border-radius: 5px;
         }
         .card-title {
-            display: inline-block;
+            display: block;
             font-size: 25px;
             margin: 10px 10px;
-            color:rgb(39, 171, 114)
+            color: rgb(39, 171, 114);
         }
         .compartir-btn {
             background-color: #e5257e;
@@ -447,6 +478,16 @@ function mostrar_servicios_shortcode($atts) {
         .pagination .button.active {
             font-weight: bold;
             text-decoration: underline;
+        }
+        @media screen and (max-width: 600px) {
+            .cards-container {
+                grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+            }
+            .card {
+                width: 100%;
+                max-width: 350px;
+            }
+            
         }
     </style>
     <?php
