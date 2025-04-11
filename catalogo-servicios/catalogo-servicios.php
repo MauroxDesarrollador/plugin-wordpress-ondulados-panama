@@ -26,6 +26,25 @@ function crear_tabla_servicios() {
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
+
+    // Asegurarse de que las columnas existen y tienen el tipo correcto
+    $columnas = [
+        'titulo' => "ALTER TABLE $tabla MODIFY COLUMN titulo varchar(255) NOT NULL",
+        'categoria' => "ALTER TABLE $tabla MODIFY COLUMN categoria varchar(100) NOT NULL",
+        'subcategoria' => "ALTER TABLE $tabla MODIFY COLUMN subcategoria varchar(100) NOT NULL",
+        'imagen' => "ALTER TABLE $tabla MODIFY COLUMN imagen varchar(255) NOT NULL",
+        'fecha' => "ALTER TABLE $tabla MODIFY COLUMN fecha datetime DEFAULT CURRENT_TIMESTAMP NOT NULL"
+    ];
+
+    foreach ($columnas as $columna => $alter_sql) {
+        $existe_columna = $wpdb->get_results($wpdb->prepare(
+            "SHOW COLUMNS FROM $tabla LIKE %s",
+            $columna
+        ));
+        if ($existe_columna) {
+            $wpdb->query($alter_sql);
+        }
+    }
 }
 
 // Añadir menú de administración
@@ -60,15 +79,38 @@ function admin_servicios() {
 
     // Procesar formulario
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nuevo_servicio'])) {
-        $datos = array(
-            'titulo' => sanitize_text_field($_POST['titulo']),
-            'categoria' => sanitize_text_field($_POST['categoria']),
-            'subcategoria' => sanitize_text_field($_POST['subcategoria']),
-            'imagen' => esc_url_raw($_POST['imagen'])
+        global $wpdb;
+        $tabla = $wpdb->prefix . 'servicios';
+
+        // Validar y sanitizar los datos del formulario
+        $titulo = sanitize_text_field($_POST['titulo']);
+        $categoria = sanitize_text_field($_POST['categoria']);
+        $subcategoria = sanitize_text_field($_POST['subcategoria']);
+        $imagen = esc_url_raw($_POST['imagen']);
+
+        // Insertar los datos en la base de datos
+        $resultado = $wpdb->insert(
+            $tabla,
+            [
+                'titulo' => $titulo,
+                'categoria' => $categoria,
+                'subcategoria' => $subcategoria,
+                'imagen' => $imagen,
+            ],
+            [
+                '%s', // Tipo de dato: string
+                '%s', // Tipo de dato: string
+                '%s', // Tipo de dato: string
+                '%s', // Tipo de dato: string
+            ]
         );
 
-        $wpdb->insert($tabla, $datos);
-        echo '<div class="notice notice-success"><p>Servicio agregado!</p></div>';
+        // Verificar si la inserción fue exitosa
+        if ($resultado) {
+            echo '<div class="notice notice-success"><p>Servicio agregado correctamente!</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p>Error al guardar el servicio. Por favor, verifica los datos.</p></div>';
+        }
     }
 
     // Obtener servicios existentes
@@ -94,11 +136,6 @@ function admin_servicios() {
                     <td>
                         <select name="categoria" id="categoria" class="regular-text" required>
                             <option value="">Seleccionar Categoría</option>
-                            <?php foreach ($categorias as $categoria): ?>
-                                <option value="<?= esc_attr($categoria) ?>">
-                                    <?= esc_html($categoria['attributes']['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
                         </select>
                     </td>
                 </tr>
@@ -197,7 +234,13 @@ function admin_servicios() {
 
             const categoriaSelect = document.getElementById('categoria');
             const subcategoriaSelect = document.getElementById('subcategoria');
-
+            
+            for (const categoria in categorias) {
+                const option = document.createElement('option');
+                option.value = categoria;
+                option.textContent = categoria;
+                categoriaSelect.appendChild(option);
+            }
             // Evento para cargar subcategorías al cambiar la categoría
             categoriaSelect.addEventListener('change', function () {
                 const categoriaSeleccionada = this.value;
@@ -207,12 +250,12 @@ function admin_servicios() {
 
                 // Cargar subcategorías correspondientes
                 if (categorias[categoriaSeleccionada]) {
-                    categorias[categoriaSeleccionada].forEach(subcategoria => {
+                    for (const subcategoria of categorias[categoriaSeleccionada]) {
                         const option = document.createElement('option');
                         option.value = subcategoria;
                         option.textContent = subcategoria;
                         subcategoriaSelect.appendChild(option);
-                    });
+                    }
                 }
             });
         });
@@ -240,9 +283,10 @@ add_action('admin_enqueue_scripts', 'cargar_scripts_servicios');
 
 function cargar_scripts_servicios($hook) {
     if ('toplevel_page_catalogo-servicios' !== $hook) return;
-    
+
     wp_enqueue_media();
     wp_enqueue_script('jquery');
+
 }
 
 // Shortcode para mostrar servicios con paginación
@@ -301,7 +345,9 @@ function mostrar_servicios_shortcode($atts) {
                     <div class="card">
                         <img src="<?= esc_url($servicio->imagen) ?>" alt="<?= esc_attr($servicio->titulo) ?>" class="card-image">
                         <h3 class="card-title"><?= esc_html($servicio->titulo) ?></h3>
-                        <button class="button compartir-btn" data-title="<?= esc_attr($servicio->titulo) ?>" data-image="<?= esc_url($servicio->imagen) ?>">Compartir</button>
+                        <button class="button compartir-btn" data-title="<?= esc_attr($servicio->titulo) ?>" data-image="<?= esc_url($servicio->imagen) ?>">
+                            <img src="https://mauricioreyesdev.com/wp-content/uploads/2025/04/hlhhk4vtyz9vi4h5iwln.webp" style="float: left;width: 25px;display: inline-block;margin-right: 10px;margin-top: 0px;"/> Compartir
+                        </button>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -368,7 +414,7 @@ function mostrar_servicios_shortcode($atts) {
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 0 0 1em 0;
-            width: 200px;
+            width: 300px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -378,8 +424,9 @@ function mostrar_servicios_shortcode($atts) {
             border-radius: 5px;
         }
         .card-title {
-            font-size: 18px;
-            margin: 10px 0;
+            display: inline-block;
+            font-size: 25px;
+            margin: 10px 10px;
             color:rgb(39, 171, 114)
         }
         .compartir-btn {
