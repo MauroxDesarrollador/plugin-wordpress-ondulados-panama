@@ -2,10 +2,10 @@
 /*
 Plugin Name: Catálogo de Servicios
 Description: Plugin para gestionar un catálogo de servicios con imágenes
-Version: 1.5
+Version: 1.8
 Author: Mauricio Reyes
 */
-define('CATALOGO_SERVICIOS_VERSION', '1.5'); // Cambia la versión según sea necesario
+define('CATALOGO_SERVICIOS_VERSION', '1.8'); // Cambia la versión según sea necesario
 // Crear tabla al activar el plugin
 register_activation_hook(__FILE__, 'crear_tabla_servicios');
 
@@ -320,16 +320,36 @@ function mostrar_servicios_shortcode($atts) {
     $pagina_actual = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
     $offset = ($pagina_actual - 1) * $por_pagina;
 
-    // Filtro por categoría
+    // Filtros
     $categoria_filtro = isset($_GET['categoria']) ? sanitize_text_field($_GET['categoria']) : '';
+    $titulo_filtro = isset($_GET['titulo']) ? sanitize_text_field($_GET['titulo']) : '';
+    $fecha_inicio = isset($_GET['fecha_inicio']) ? sanitize_text_field($_GET['fecha_inicio']) : '';
+    $fecha_fin = isset($_GET['fecha_fin']) ? sanitize_text_field($_GET['fecha_fin']) : '';
 
-    // Consulta con filtro de categoría
-    $query = "SELECT * FROM $tabla";
+    // Construir consulta con filtros
+    $query = "SELECT * FROM $tabla WHERE 1=1";
     $query_params = [];
+
     if (!empty($categoria_filtro)) {
-        $query .= " WHERE categoria = %s";
+        $query .= " AND categoria = %s";
         $query_params[] = $categoria_filtro;
     }
+
+    if (!empty($titulo_filtro)) {
+        $query .= " AND titulo LIKE %s";
+        $query_params[] = '%' . $wpdb->esc_like($titulo_filtro) . '%';
+    }
+
+    if (!empty($fecha_inicio)) {
+        $query .= " AND fecha >= %s";
+        $query_params[] = $fecha_inicio;
+    }
+
+    if (!empty($fecha_fin)) {
+        $query .= " AND fecha <= %s";
+        $query_params[] = $fecha_fin;
+    }
+
     $query .= " ORDER BY fecha DESC LIMIT %d OFFSET %d";
     $query_params[] = $por_pagina;
     $query_params[] = $offset;
@@ -337,13 +357,30 @@ function mostrar_servicios_shortcode($atts) {
     $servicios = $wpdb->get_results($wpdb->prepare($query, $query_params));
 
     // Contar total de servicios
-    $total_servicios_query = "SELECT COUNT(*) FROM $tabla";
+    $total_servicios_query = "SELECT COUNT(*) FROM $tabla WHERE 1=1";
+    $total_params = [];
+
     if (!empty($categoria_filtro)) {
-        $total_servicios_query .= " WHERE categoria = %s";
-        $total_servicios = $wpdb->get_var($wpdb->prepare($total_servicios_query, $categoria_filtro));
-    } else {
-        $total_servicios = $wpdb->get_var($total_servicios_query);
+        $total_servicios_query .= " AND categoria = %s";
+        $total_params[] = $categoria_filtro;
     }
+
+    if (!empty($titulo_filtro)) {
+        $total_servicios_query .= " AND titulo LIKE %s";
+        $total_params[] = '%' . $wpdb->esc_like($titulo_filtro) . '%';
+    }
+
+    if (!empty($fecha_inicio)) {
+        $total_servicios_query .= " AND fecha >= %s";
+        $total_params[] = $fecha_inicio;
+    }
+
+    if (!empty($fecha_fin)) {
+        $total_servicios_query .= " AND fecha <= %s";
+        $total_params[] = $fecha_fin;
+    }
+
+    $total_servicios = $wpdb->get_var($wpdb->prepare($total_servicios_query, $total_params));
     $total_paginas = ceil($total_servicios / $por_pagina);
 
     // Generar HTML
@@ -352,8 +389,11 @@ function mostrar_servicios_shortcode($atts) {
     <div class="servicios-lista">
     <p style="color: rgb(39, 171, 114); text-align: center; width: 100%; font-size: 20px; font-weight: 700;" class="">Si encuentras tu resultado, comparte tu foto y menciónanos en Instagram como @ondulados.pa</p>
         <!-- Buscador por categoría -->
-        <form method="get" class="buscador-categoria" style="text-align: center; margin-bottom: 20px;">
+        <form method="get" class="buscador-filtros" style="text-align: center; margin-bottom: 20px;">
             <input style="height:45px" type="text" name="categoria" placeholder="Buscar por categoría" value="<?= esc_attr($categoria_filtro) ?>">
+            <input style="height:45px" type="text" name="titulo" placeholder="Buscar por título" value="<?= esc_attr($titulo_filtro) ?>">
+            <input style="height:45px" type="date" name="fecha_inicio" placeholder="Fecha inicio" value="<?= esc_attr($fecha_inicio) ?>">
+            <input style="height:45px" type="date" name="fecha_fin" placeholder="Fecha fin" value="<?= esc_attr($fecha_fin) ?>">
             <button type="submit" class="button">Buscar</button>
         </form>
 
