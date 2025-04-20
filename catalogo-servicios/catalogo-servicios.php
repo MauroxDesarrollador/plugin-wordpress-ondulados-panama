@@ -541,26 +541,24 @@ function mostrar_servicios_shortcode($atts) {
     <div class="servicios-lista">
     <p style="color: rgb(39, 171, 114); text-align: center; width: 100%; font-size: 20px; font-weight: 700;" class="">Si encuentras tu resultado, comparte tu foto y menciónanos en Instagram como @ondulados.pa</p>
         <!-- Buscador por categoría -->
-        <form method="get" class="buscador-filtros" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <form id="FormSend" method="get" class="buscador-filtros" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;">
            
             <div style="position: relative; flex: 1; min-width: 200px;">
                  <label>Título:</label>
-                 <input style="height: 45px; width: 100%;" type="text" name="titulo" placeholder="Buscar por título" value="<?= esc_attr($titulo_filtro) ?>">
+                 <input onchange="enviarForm()" style="height: 45px; width: 100%;" type="text" name="titulo" placeholder="Buscar por título" value="<?= esc_attr($titulo_filtro) ?>">
            
             </div>
             <div style="flex: 1; min-width: 200px;">
                  <label>Fecha inicio:</label>
-                 <input style="height: 45px; width: 100%;" type="date" name="fecha_inicio" placeholder="Fecha inicio" value="<?= esc_attr($fecha_inicio) ?>">
+                 <input onchange="enviarForm()" style="height: 45px; width: 100%;" type="date" name="fecha_inicio" placeholder="Fecha inicio" value="<?= esc_attr($fecha_inicio) ?>">
             
             </div>
           
             <div style="flex: 1; min-width: 200px;">
                 <label>Fecha fin:</label>
-                <input style="height: 45px; width: 100%;" type="date" name="fecha_fin" placeholder="Fecha fin" value="<?= esc_attr($fecha_fin) ?>">
+                <input onchange="enviarForm()" style="height: 45px; width: 100%;" type="date" name="fecha_fin" placeholder="Fecha fin" value="<?= esc_attr($fecha_fin) ?>">
             </div>
-            <button type="submit" class="button" style="height: 45px; background-color:#e6287e; color: white; border: none; padding: 0 20px; cursor: pointer; border-radius: 5px; display: flex; align-items: center; gap: 5px;margin-top: 20px;">
-                Buscar
-            </button>
+           
         </form>
         <div id="botones_categorias" style="text-align:center"></div>
         <!-- Mostrar servicios en formato de cards -->
@@ -571,9 +569,9 @@ function mostrar_servicios_shortcode($atts) {
                         <img src="<?= esc_url($servicio->imagen) ?>" alt="<?= esc_attr($servicio->titulo) ?>" class="card-image">
                         <h3 class="card-title"><?= esc_html($servicio->titulo) ?></h3>
                         <button class="button compartir-btn" data-title="<?= esc_attr($servicio->titulo) ?>" data-image="<?= esc_url($servicio->imagen) ?>">
-                            <img src="https://mauricioreyesdev.com/wp-content/uploads/2025/04/hlhhk4vtyz9vi4h5iwln.webp" style="float: left;width: 25px;display: inline-block;margin-right: 10px;margin-top: 0px;"/> Compartir
+                          Compartir    <img src="https://mauricioreyesdev.com/wp-content/uploads/2025/04/hlhhk4vtyz9vi4h5iwln.webp" style="float: right;width: 25px;display: inline-block;margin-right: 10px;margin-top: 0px;"/>
                         </button>
-                    </div>
+                        <!--compartir whatsapp-->
                 <?php endforeach; ?>
             <?php else: ?>
                 <p>No hay servicios registrados.</p>
@@ -598,6 +596,10 @@ function mostrar_servicios_shortcode($atts) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        function enviarForm() {
+            const form = document.getElementById('FormSend');
+            form.submit();
+        }
         const categorias ={
             "Paquete de servicios" : [
                 "Rescata tu Melena",
@@ -703,7 +705,24 @@ function mostrar_servicios_shortcode($atts) {
                     .then(() => console.log('Compartido con éxito'))
                     .catch((error) => console.error('Error al compartir', error));
                 } else {
-                    alert('La función de compartir no está disponible en este navegador.');
+                    //replace element por compartir en whatsapp facebook y twitter
+                    const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                
+                    const shareUrlFacebook= `https://www.facebook.com/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+                    
+                    const shareUrlTwitter= `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+                    const htmlByNewButtons=`
+                        <div class="share-buttons">
+                            <a href="${shareUrl}" class="button" style="color:black;background:#e0e0e0" target="_blank" rel="noopener noreferrer">Compartir en WhatsApp</a>
+                            <a href="${shareUrlFacebook}" class="button" style="color:black;background:#e0e0e0" target="_blank" rel="noopener noreferrer">Compartir en Facebook</a>
+                            <a href="${shareUrlTwitter}" class="button" style="color:black;background:#e0e0e0" target="_blank" rel="noopener noreferrer">Compartir en Twitter</a>
+                        </div>
+                    `;
+                    const divShareButtons = document.createElement('div');
+                    divShareButtons.innerHTML = htmlByNewButtons;
+                    button.after(divShareButtons);
+                    button.remove();
+
                 }
                 } catch (error) {
                 console.error('Error al obtener la imagen', error);
@@ -715,12 +734,19 @@ function mostrar_servicios_shortcode($atts) {
     </script>
 
     <style>
+        [type=button], [type=submit], button{
+            border:none !important
+        }
         .button{
             border-radius:50px;
             margin: 5px;
             background-color: #e5257e; 
             color: white;
-            border-color: black;
+            border-color: none !important;
+        }
+        .button:hover{
+            background-color: rgb(39, 171, 114);
+            color: white;
         }
         .buscador-categoria {
             margin-bottom: 20px;
@@ -742,7 +768,6 @@ function mostrar_servicios_shortcode($atts) {
             display: flex;
             flex-direction: column; /* Asegura que los elementos estén en columna */
             justify-content: space-between; /* Espacia el contenido uniformemente */
-            border: 1px solid #ddd;
             border-radius: 5px;
             padding: 0 0 10px 0;
             width: 100%;
@@ -762,7 +787,6 @@ function mostrar_servicios_shortcode($atts) {
             font-size: 20px;
             margin: 10px 0;
             color: rgb(39, 171, 114);
-            flex-grow: 1; /* Permite que el título ocupe espacio adicional si es necesario */
         }
 
         .compartir-btn {
@@ -771,12 +795,12 @@ function mostrar_servicios_shortcode($atts) {
             border: none;
             padding: 10px;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 50px;
             margin-top: 10px;
         }
 
         .compartir-btn:hover {
-            background-color: #005177;
+            background-color:rgb(39, 171, 114);
         }
         .item_pagination{
             margin-right:10px
