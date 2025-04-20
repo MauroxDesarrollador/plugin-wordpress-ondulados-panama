@@ -571,7 +571,8 @@ function mostrar_servicios_shortcode($atts) {
                         <button class="button compartir-btn" data-title="<?= esc_attr($servicio->titulo) ?>" data-image="<?= esc_url($servicio->imagen) ?>">
                           Compartir    <img src="https://mauricioreyesdev.com/wp-content/uploads/2025/04/hlhhk4vtyz9vi4h5iwln.webp" style="float: right;width: 25px;display: inline-block;margin-right: 10px;margin-top: 0px;"/>
                         </button>
-                        <!--compartir whatsapp-->
+                        
+                    </div>
                 <?php endforeach; ?>
             <?php else: ?>
                 <p>No hay servicios registrados.</p>
@@ -686,6 +687,10 @@ function mostrar_servicios_shortcode($atts) {
             const buttons = document.querySelectorAll('.compartir-btn');
 
             buttons.forEach(button => {
+            if (!navigator.share) {
+                button.textContent = 'Compartir';
+            }
+
             button.addEventListener('click', async function () {
                 const imageUrl = this.getAttribute('data-image');
                 const title = this.getAttribute('data-title');
@@ -705,24 +710,19 @@ function mostrar_servicios_shortcode($atts) {
                     .then(() => console.log('Compartido con éxito'))
                     .catch((error) => console.error('Error al compartir', error));
                 } else {
-                    //replace element por compartir en whatsapp facebook y twitter
-                    const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-                
-                    const shareUrlFacebook= `https://www.facebook.com/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-                    
-                    const shareUrlTwitter= `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-                    const htmlByNewButtons=`
-                        <div class="share-buttons">
-                            <a href="${shareUrl}" class="button" style="color:black;background:#e0e0e0" target="_blank" rel="noopener noreferrer">Compartir en WhatsApp</a>
-                            <a href="${shareUrlFacebook}" class="button" style="color:black;background:#e0e0e0" target="_blank" rel="noopener noreferrer">Compartir en Facebook</a>
-                            <a href="${shareUrlTwitter}" class="button" style="color:black;background:#e0e0e0" target="_blank" rel="noopener noreferrer">Compartir en Twitter</a>
-                        </div>
+                    //compartir imagen por whatsapp facebook y twitter
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(imageUrl)}`;
+                    const facebookUrl = `https://www.facebook.com/sharer.php?u=${encodeURIComponent(imageUrl)}`;
+                    const twitterUrl = `https://twitter.com/share?url=${encodeURIComponent(imageUrl)}`;
+                    const htmlButtons = `
+                        <a href="${whatsappUrl}" target="_blank" class="button" style="padding:10px;display:block;color:white;background:#00B900">Compartir por WhatsApp</a>
+                        <a href="${facebookUrl}" target="_blank" class="button" style="padding:10px;display:block;color:white;background:#365ED6">Compartir por Facebook</a>
+                        <a href="${twitterUrl}" target="_blank" class="button" style="padding:10px;display:block;color:white;background:##000000">Compartir por Twitter</a>
                     `;
-                    const divShareButtons = document.createElement('div');
-                    divShareButtons.innerHTML = htmlByNewButtons;
-                    button.after(divShareButtons);
-                    button.remove();
-
+                    swal.fire({
+                        title: 'Compartir',
+                        html:htmlButtons,
+                    });
                 }
                 } catch (error) {
                 console.error('Error al obtener la imagen', error);
@@ -734,6 +734,7 @@ function mostrar_servicios_shortcode($atts) {
     </script>
 
     <style>
+        
         [type=button], [type=submit], button{
             border:none !important
         }
@@ -768,6 +769,7 @@ function mostrar_servicios_shortcode($atts) {
             display: flex;
             flex-direction: column; /* Asegura que los elementos estén en columna */
             justify-content: space-between; /* Espacia el contenido uniformemente */
+            border: 1px solid #ddd;
             border-radius: 5px;
             padding: 0 0 10px 0;
             width: 100%;
