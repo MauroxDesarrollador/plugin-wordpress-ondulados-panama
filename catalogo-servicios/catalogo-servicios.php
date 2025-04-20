@@ -653,8 +653,7 @@ function mostrar_servicios_shortcode($atts) {
                 }
                 Swal.fire({
                     title: 'Selecciona una subcategoría',
-                    html: htmlswealert,
-                    showCloseButton: true,
+                    html: htmlswealert
                 });
            }else{
                 const urlParams = new URLSearchParams(window.location.search);
@@ -717,7 +716,7 @@ function mostrar_servicios_shortcode($atts) {
                     const htmlButtons = `
                         <a href="${whatsappUrl}" target="_blank" class="button" style="padding:10px;display:block;color:white;background:#00B900">Compartir por WhatsApp</a>
                         <a href="${facebookUrl}" target="_blank" class="button" style="padding:10px;display:block;color:white;background:#365ED6">Compartir por Facebook</a>
-                        <a href="${twitterUrl}" target="_blank" class="button" style="padding:10px;display:block;color:white;background:##000000">Compartir por Twitter</a>
+                        <a href="${twitterUrl}" target="_blank" class="button" style="padding:10px;display:block;color:white;background:#000000">Compartir por Twitter</a>
                     `;
                     swal.fire({
                         title: 'Compartir',
@@ -799,6 +798,8 @@ function mostrar_servicios_shortcode($atts) {
             cursor: pointer;
             border-radius: 50px;
             margin-top: 10px;
+            width:200px;
+            margin:auto
         }
 
         .compartir-btn:hover {
