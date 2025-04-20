@@ -2,12 +2,12 @@
 /*
 Plugin Name: Catálogo de Servicios
 Description: Plugin para gestionar un catálogo de servicios con imágenes
-Version: 2.7
+Version: 2.8
 Author: Mauricio Reyes
 Author URI: https://mauricioreyesdev.com
 License: GPL2
 */
-define('CATALOGO_SERVICIOS_VERSION', '2.7'); // Cambia la versión según sea necesario
+define('CATALOGO_SERVICIOS_VERSION', '2.8'); // Cambia la versión según sea necesario
 // Crear tabla al activar el plugin
 register_activation_hook(__FILE__, 'crear_tabla_servicios');
 
@@ -304,44 +304,43 @@ function admin_servicios() {
         document.addEventListener('DOMContentLoaded', function () {
             // Definir las categorías y subcategorías
             const categorias = {
-                "Paquete de servicios": [
-                    "Rescata tu Melena",
-                    "Mima tu Melena Chiquita",
-                    "Empecemos desde 0",
-                    "Engalana tu Melena natural",
-                    "Curly Men Pack"
-                ],
-                "Cortes de cabello": [
-                    "Capas cortas",
-                    "Capas largas",
-                    "Fade Plus",
-                    "Fade Plus con diseño",
-                    "Corte con máquina standard",
-                    "Corte con máquina standard con diseño",
-                    "Pixie",
-                    "Curly Bob asimétrico",
-                    "Curly Bob francés",
-                    "Shaggy",
-                    "Flequillo"
-                ],
-                "Trenzas": [],
-                "Color e iluminaciones": [
-                    "Color uniforme",
-                    "Cobertura de canas",
-                    "Mechas creativas",
-                    "Balayage"
-                ],
-                "Peinados para eventos": [],
-                "Tratamiento intenso de uso profesional": [
-                    "Rizado permanente en cabello liso",
-                    "Patrón de cabello"
-                ],
-                "Hidratación profunda de uso profesional": [
-                    "Células Madres - Alfaparf",
-                    "Restructure Morphosis - Framesi",
-                    "Fusio Dose - Kérastase"
-                ]
-            };
+            "Paquete de servicios" : [
+                "Rescata tu Melena",
+                "Mima tu Melena Chiquita",
+                "Empecemos desde 0",
+                "Engalana tu Melena natural",
+                "Curly Men Pack"
+            ],
+            "Cortes de cabello" : [
+                "Capas cortas",
+                "Capas largas",
+                "Fade Plus",
+                "Fade Plus con diseño",
+                "Corte con máquina standard",
+                "Corte con máquina standard con diseño",
+                "Pixie",
+                "Curly Bob asimétrico",
+                "Curly Bob francés",
+                "Shaggy",
+                "Flequillo"
+            ],
+            "Trenzas" : [],
+            "Color e iluminaciones" : [
+                "Color uniforme",
+                "Cobertura de canas",
+                "Mechas creativas",
+                "Balayage"
+            ],
+            "Peinados para eventos" : [],
+            "Tratamiento intenso de uso profesional" : [],
+            "Rizado permanente en cabello liso" : [],
+            "Patrón de cabello" : [],
+            "Hidratación profunda de uso profesional" : [
+                "Células Madres - Alfaparf",
+                "Restructure Morphosis - Framesi",
+                "Fusio Dose - Kérastase"
+            ]
+        };
 
             const categoriaSelect = document.getElementById('categoria') || document.getElementById('categoria_editar');
             const subcategoriaSelect = document.getElementById('subcategoria') || document.getElementById('categoria_editar');;
@@ -599,45 +598,44 @@ function mostrar_servicios_shortcode($atts) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        const categorias = {
-                "Paquete de servicios": [
-                    "Rescata tu Melena",
-                    "Mima tu Melena Chiquita",
-                    "Empecemos desde 0",
-                    "Engalana tu Melena natural",
-                    "Curly Men Pack"
-                ],
-                "Cortes de cabello": [
-                    "Capas cortas",
-                    "Capas largas",
-                    "Fade Plus",
-                    "Fade Plus con diseño",
-                    "Corte con máquina standard",
-                    "Corte con máquina standard con diseño",
-                    "Pixie",
-                    "Curly Bob asimétrico",
-                    "Curly Bob francés",
-                    "Shaggy",
-                    "Flequillo"
-                ],
-                "Trenzas": [],
-                "Color e iluminaciones": [
-                    "Color uniforme",
-                    "Cobertura de canas",
-                    "Mechas creativas",
-                    "Balayage"
-                ],
-                "Peinados para eventos": [],
-                "Tratamiento intenso de uso profesional": [
-                    "Rizado permanente en cabello liso",
-                    "Patrón de cabello"
-                ],
-                "Hidratación profunda de uso profesional": [
-                    "Células Madres - Alfaparf",
-                    "Restructure Morphosis - Framesi",
-                    "Fusio Dose - Kérastase"
-                ]
-            };
+        const categorias ={
+            "Paquete de servicios" : [
+                "Rescata tu Melena",
+                "Mima tu Melena Chiquita",
+                "Empecemos desde 0",
+                "Engalana tu Melena natural",
+                "Curly Men Pack"
+            ],
+            "Cortes de cabello" : [
+                "Capas cortas",
+                "Capas largas",
+                "Fade Plus",
+                "Fade Plus con diseño",
+                "Corte con máquina standard",
+                "Corte con máquina standard con diseño",
+                "Pixie",
+                "Curly Bob asimétrico",
+                "Curly Bob francés",
+                "Shaggy",
+                "Flequillo"
+            ],
+            "Trenzas" : [],
+            "Color e iluminaciones" : [
+                "Color uniforme",
+                "Cobertura de canas",
+                "Mechas creativas",
+                "Balayage"
+            ],
+            "Peinados para eventos" : [],
+            "Tratamiento intenso de uso profesional" : [],
+            "Rizado permanente en cabello liso" : [],
+            "Patrón de cabello" : [],
+            "Hidratación profunda de uso profesional" : [
+                "Células Madres - Alfaparf",
+                "Restructure Morphosis - Framesi",
+                "Fusio Dose - Kérastase"
+            ]
+        };
         function filtrarPorSubcategoria(subcategoria) {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('subcategoria', subcategoria);
@@ -796,4 +794,111 @@ function mostrar_servicios_shortcode($atts) {
     </style>
     <?php
     return ob_get_clean();
+}
+
+// Registrar la ruta de la API
+add_action('rest_api_init', function () {
+    register_rest_route('catalogo-servicios/v1', '/servicios', [
+        'methods' => 'GET',
+        'callback' => 'obtener_servicios_api',
+        'permission_callback' => '__return_true', // Permitir acceso público
+    ]);
+});
+
+// Función para obtener los servicios
+function obtener_servicios_api($data) {
+    global $wpdb;
+    $tabla = $wpdb->prefix . 'servicios';
+
+    // Obtener parámetros opcionales de la solicitud
+    $categoria = isset($data['categoria']) ? sanitize_text_field($data['categoria']) : '';
+    $titulo = isset($data['titulo']) ? sanitize_text_field($data['titulo']) : '';
+
+    // Construir la consulta
+    $query = "SELECT * FROM $tabla WHERE 1=1";
+    $query_params = [];
+
+    if (!empty($categoria)) {
+        $query .= " AND categoria = %s";
+        $query_params[] = $categoria;
+    }
+
+    if (!empty($titulo)) {
+        $query .= " AND titulo LIKE %s";
+        $query_params[] = '%' . $wpdb->esc_like($titulo) . '%';
+    }
+
+    $query .= " ORDER BY fecha DESC";
+
+    // Ejecutar la consulta
+    $servicios = $wpdb->get_results($wpdb->prepare($query, $query_params));
+
+    // Formatear la respuesta
+    $respuesta = [];
+    foreach ($servicios as $servicio) {
+        $respuesta[] = [
+            'id' => $servicio->id,
+            'titulo' => $servicio->titulo,
+            'categoria' => $servicio->categoria,
+            'subcategoria' => $servicio->subcategoria,
+            'imagen' => $servicio->imagen,
+            'fecha' => $servicio->fecha,
+        ];
+    }
+
+    return rest_ensure_response($respuesta);
+}
+
+// Registrar la ruta de la API para obtener categorías
+add_action('rest_api_init', function () {
+    register_rest_route('catalogo-servicios/v1', '/categorias', [
+        'methods' => 'GET',
+        'callback' => 'obtener_categorias_api',
+        'permission_callback' => '__return_true', // Permitir acceso público
+    ]);
+});
+
+// Función para obtener las categorías
+function obtener_categorias_api() {
+    // Definir las categorías y subcategorías
+    $categorias = [
+        "Paquete de servicios" => [
+            "Rescata tu Melena",
+            "Mima tu Melena Chiquita",
+            "Empecemos desde 0",
+            "Engalana tu Melena natural",
+            "Curly Men Pack"
+        ],
+        "Cortes de cabello" => [
+            "Capas cortas",
+            "Capas largas",
+            "Fade Plus",
+            "Fade Plus con diseño",
+            "Corte con máquina standard",
+            "Corte con máquina standard con diseño",
+            "Pixie",
+            "Curly Bob asimétrico",
+            "Curly Bob francés",
+            "Shaggy",
+            "Flequillo"
+        ],
+        "Trenzas" => [],
+        "Color e iluminaciones" => [
+            "Color uniforme",
+            "Cobertura de canas",
+            "Mechas creativas",
+            "Balayage"
+        ],
+        "Peinados para eventos" => [],
+        "Tratamiento intenso de uso profesional" => [],
+        "Rizado permanente en cabello liso" => [],
+        "Patrón de cabello" => [],
+        "Hidratación profunda de uso profesional" => [
+            "Células Madres - Alfaparf",
+            "Restructure Morphosis - Framesi",
+            "Fusio Dose - Kérastase"
+        ]
+    ];
+
+    return rest_ensure_response($categorias);
 }
