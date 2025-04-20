@@ -339,7 +339,10 @@ function admin_servicios() {
                 "Células Madres - Alfaparf",
                 "Restructure Morphosis - Framesi",
                 "Fusio Dose - Kérastase"
-            ]
+            ],
+            "Especialistas en Ondas y Rizos" : ["Especialista"],
+            "Patrón de Cabello":[],
+            "Rizado Permanente en Cabello Liso":[]
         };
 
             const categoriaSelect = document.getElementById('categoria') || document.getElementById('categoria_editar');
@@ -541,7 +544,7 @@ function mostrar_servicios_shortcode($atts) {
     <div class="servicios-lista">
     <p style="color: rgb(39, 171, 114); text-align: center; width: 100%; font-size: 20px; font-weight: 700;" class="">Si encuentras tu resultado, comparte tu foto y menciónanos en Instagram como @ondulados.pa</p>
         <!-- Buscador por categoría -->
-        <form id="FormSend" method="get" class="buscador-filtros" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <form id="FormSend" method="get" class="buscador-filtros" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;padding:2em">
            
             <div style="position: relative; flex: 1; min-width: 200px;">
                  <label>Título:</label>
@@ -637,7 +640,10 @@ function mostrar_servicios_shortcode($atts) {
                 "Células Madres - Alfaparf",
                 "Restructure Morphosis - Framesi",
                 "Fusio Dose - Kérastase"
-            ]
+            ],
+            "Especialistas en Ondas y Rizos" : ["Especialista"],
+            "Patrón de Cabello":[],
+            "Rizado Permanente en Cabello Liso":[]
         };
         function filtrarPorSubcategoria(subcategoria) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -788,6 +794,7 @@ function mostrar_servicios_shortcode($atts) {
             font-size: 20px;
             margin: 10px 0;
             color: rgb(39, 171, 114);
+            padding:0.5em 1em
         }
 
         .compartir-btn {
@@ -924,7 +931,10 @@ function obtener_categorias_api() {
             "Células Madres - Alfaparf",
             "Restructure Morphosis - Framesi",
             "Fusio Dose - Kérastase"
-        ]
+        ],
+        "Especialistas en Ondas y Rizos" => ["Especialista"],
+        "Patrón de Cabello"=>[],
+        "Rizado Permanente en Cabello Liso"=>[]
     ];
 
     return rest_ensure_response($categorias);
